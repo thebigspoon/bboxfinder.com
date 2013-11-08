@@ -470,8 +470,8 @@ $(function() {
             map.fitBounds(bounds.getBounds());
         }
     });
-    $('button#clear').on( 'click', function(evt){
-        $('.leaflet-sidebar textarea').val('');
+    $('button#cancel').on( 'click', function(evt){
+        lightBox.endLightBox();
     });
 
     // Add in a layer to overlay the tile bounds of the google grid
