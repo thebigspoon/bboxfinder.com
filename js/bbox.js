@@ -122,7 +122,7 @@ function addLayer(layer, name, zIndex, on) {
 
 function addGeoJson() {
 
-    var data = $('.leaflet-sidebar textarea').val();
+    var data = $('.ocontainer textarea').val();
 
     // QC as JSON
     try{
@@ -460,13 +460,13 @@ $(function() {
 
     // handle create-geojson click events
     $('#create-geojson').on( 'click' , function(){
-        sidebar.show();
+        lightBox.startLightBox();
     });
 
     $('button#add').on( 'click', function(evt){
         var is_valid = addGeoJson();
         if (is_valid) {
-            sidebar.hide();
+            lightBox.endLightBox();
             map.fitBounds(bounds.getBounds());
         }
     });
