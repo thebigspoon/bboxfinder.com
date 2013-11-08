@@ -132,19 +132,34 @@ function typeSniffDelegator() {
 
         // try GeoJSON
         var parsed_data = new L.geoJson( json )
-        parse_type = "geojson";
+        // check for multipart, unsupported for now
+        parsed_data.getLayers().forEach( function( lyr, indx ){
+
+            if( /multi/i.test( lyr.feature.geometry.type ) ) {
+                alert( "Multipart GeoJson is not supported yet" );
+                fail = true;
+            }
+
+        });
+        if ( !fail ) parse_type = "geojson";
+
     } catch(err){
         try{
             // try WKT 
             var parsed_data = new Wkt.Wkt( data );
-            parse_type = "wkt";
+            // check for multipart, unsupported for now
+            if ( /multi/i.test( parsed_data.type ) ){
+                alert( "Multipart WKT is not supported yet" );
+                fail = true;
+            }
+            if ( !fail ) parse_type = "wkt";
         } catch(err){
             alert( "Your paste is not parsable as GeoJSON or WKT" );
             fail = true;
         }
     }
 
-    
+    // delegate 
     if ( parse_type === "geojson" ){
        // data is already a L.ILayer
        addGeoJson( parsed_data );
