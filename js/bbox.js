@@ -120,8 +120,70 @@ function addLayer(layer, name, zIndex, on) {
 };
 
 
-function addGeoJson() {
+function typeSniffDelegator() {
 
+    var data = $('.ocontainer textarea').val();
+    
+    var fail = false;
+    var parse_type = null;
+    try{
+        // try JSON
+        var json = JSON.parse( data );
+
+        // try GeoJSON
+        var parsed_data = new L.geoJson( json )
+        parse_type = "geojson";
+    } catch(err){
+        try{
+            // try WKT 
+            var parsed_data = new Wkt.Wkt( data );
+            parse_type = "wkt";
+        } catch(err){
+            alert( "Your paste is not parsable as GeoJSON or WKT" );
+            fail = true;
+        }
+    }
+
+    
+    if ( parse_type === "geojson" ){
+       // data is already a L.ILayer
+       addGeoJson( parsed_data );
+    } 
+    else if ( parse_type === "wkt" ){
+       // we create an L.ILayer inside callback
+       addWkt( parsed_data );
+    }
+    
+    return ( fail ? false : true );
+}
+
+function addWkt(data){
+
+    var lyr = data.construct[data.type].call( data );
+    var event_obj = {
+        layer : lyr,
+        layerType : null,
+    } 
+
+    // coerce to L.Draw types
+    if ( /point/i.test( data.type ) ){
+        event_obj.layerType = "marker";
+    }
+    else if( /linestring/i.test( data.type ) ){
+        event_obj.layerType = "polyline";
+    }
+    else if ( /polygon/i.test( data.type ) ){
+        event_obj.layerType = "polygon";
+    }
+
+    // call L.Draw.Feature.prototype._fireCreatedEvent
+    map.fire( 'draw:created', event_obj );
+
+}
+
+function addGeoJson(gjson_layer) {
+
+    /*
     var data = $('.ocontainer textarea').val();
 
     // QC as JSON
@@ -145,6 +207,7 @@ function addGeoJson() {
         alert( "Yuck. Leaflet puked up your geojson with this error:\n" + err.message );
         return false;
     }
+    */
 
     /*
     ** 
@@ -464,7 +527,7 @@ $(function() {
     });
 
     $('button#add').on( 'click', function(evt){
-        var is_valid = addGeoJson();
+        var is_valid = typeSniffDelegator();
         if (is_valid) {
             lightBox.endLightBox();
             map.fitBounds(bounds.getBounds());
