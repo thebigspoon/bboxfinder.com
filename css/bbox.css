@@ -205,20 +205,20 @@ html, body, #map {
     -webkit-filter: blur(0) sepia(0) invert(0);
     filter: blur(0) sepia(0) invert(0);
 
-    -moz-transition: all 1000ms ease;
-    -webkit-transition: all 1s ease;
-    transition: all 1s ease;
+    -moz-transition: all 0.5s ease;
+    -webkit-transition: all 0.5s ease;
+    transition: all 0.5s ease;
 }
 
 .blurred.leaflet-tile-loaded {
-    -moz-filter: blur(3px) sepia(1) invert(1);
-    -moz-transition: all 1000ms ease;
+    -moz-filter: blur(1px) sepia(1) invert(1);
+    -moz-transition: all 0.5s ease;
 
-    -webkit-filter: blur(3px) sepia(1) invert(1);
-    -webkit-transition: all 1s ease;
+    -webkit-filter: blur(1px) sepia(1) invert(1);
+    -webkit-transition: all 0.5s ease;
 
-    filter: blur(3px) sepia(1) invert(1);
-    transition: all 1s ease;
+    filter: blur(1px) sepia(1) invert(1);
+    transition: all 0.5s ease;
 }
 
 

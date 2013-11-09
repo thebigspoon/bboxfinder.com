@@ -6,7 +6,7 @@ var map, sidebar = null;
 **  really b/c we need a singleton
 **
 */
-var lightBox = (function(){
+var lightBox = (function(){ // execute immediately
     "use strict";
 
     var LightBox = function(options){
@@ -65,7 +65,7 @@ var lightBox = (function(){
 
     return new LightBox();
 
-})(); // create it right away
+})();
 
 /*
 **
@@ -120,168 +120,171 @@ function addLayer(layer, name, zIndex, on) {
 };
 
 
-function typeSniffDelegator() {
 
-    var data = $('.ocontainer textarea').val();
-    
-    var fail = false;
-    var parse_type = null;
-    try{
-        // try JSON
-        var json = JSON.parse( data );
+var formatSniffer = (function () {  // execute immediately
 
-        // try GeoJSON
-        var parsed_data = new L.geoJson( json )
-        // check for multipart, unsupported for now
-        parsed_data.getLayers().forEach( function( lyr, indx ){
-
-            if( /multi/i.test( lyr.feature.geometry.type ) ) {
-                alert( "Multipart GeoJson is not supported yet" );
-                fail = true;
-            }
-
-        });
-        if ( !fail ) parse_type = "geojson";
-
-    } catch(err){
-        try{
-            // try WKT 
-            var parsed_data = new Wkt.Wkt( data );
-            // check for multipart, unsupported for now
-            if ( /multi/i.test( parsed_data.type ) ){
-                alert( "Multipart WKT is not supported yet" );
-                fail = true;
-            }
-            if ( !fail ) parse_type = "wkt";
-        } catch(err){
-            alert( "Your paste is not parsable as GeoJSON or WKT" );
-            fail = true;
-        }
-    }
-
-    // delegate 
-    if ( parse_type === "geojson" ){
-       // data is already a L.ILayer
-       addGeoJson( parsed_data );
-    } 
-    else if ( parse_type === "wkt" ){
-       // we create an L.ILayer inside callback
-       addWkt( parsed_data );
-    }
-    
-    return ( fail ? false : true );
-}
-
-function addWkt(data){
-
-    var lyr = data.construct[data.type].call( data );
-    var event_obj = {
-        layer : lyr,
-        layerType : null,
-    } 
-
-    // coerce to L.Draw types
-    if ( /point/i.test( data.type ) ){
-        event_obj.layerType = "marker";
-    }
-    else if( /linestring/i.test( data.type ) ){
-        event_obj.layerType = "polyline";
-    }
-    else if ( /polygon/i.test( data.type ) ){
-        event_obj.layerType = "polygon";
-    }
-
-    // call L.Draw.Feature.prototype._fireCreatedEvent
-    map.fire( 'draw:created', event_obj );
-
-}
-
-function addGeoJson(gjson_layer) {
+    'use strict';
 
     /*
-    var data = $('.ocontainer textarea').val();
-
-    // QC as JSON
-    try{
-        data = JSON.parse( data );
-    } catch(err){
-        if( /unexpected token/i.test(err.message) ){
-            alert( "That's not parsable JSON dude!" );
-        }
-        else {
-            alert( "Something doesn't smell right about that JSON" );
-        }
-        return false;
-    }
-
-    // create geojson layer
-    try {
-        var gjson_layer = new L.geoJson( data );
-    }
-    catch( err ){
-        alert( "Yuck. Leaflet puked up your geojson with this error:\n" + err.message );
-        return false;
-    }
-    */
-
-    /*
-    ** 
-    **  QC feature layer count to make
-    **  sure someone is not trying to bomb
-    **  the system
+    **
+    **  constructor
     **
     */
-    if ( gjson_layer.getLayers().length >= 50 ) {
-        alert( "Try adding geojson with < 50 features dingus" );
-        return false;
-    }
+    var FormatSniffer = function( options ) {
 
-    /* 
-    **  add it as L.FeatureGroup layer 
-    **  to work with L.Draw
-    **  edit and delete options
-    **  by faking event information
-    **  and triggering draw:created
+        options || ( options = {} );
+
+        if( !this || !( this instanceof FormatSniffer ) ){
+            return new FormatSniffer(options);
+        }
+
+        this.data = options.data || ""; 
+        
+        // trigger the sniffer
+        return this._sniffFormat();
+
+    };
+
+    /*
+    **
+    **  functions
+    **
     */
-    gjson_layer.getLayers().forEach( function( lyr, indx ){
+    FormatSniffer.prototype._sniffFormat = function () {
+        
+        var fail = false;
+        var parse_type = null;
+        try {
 
-        // create payload event object to pass to L.FeatureGroup
-        var event_obj = {
-            layer : lyr ,
-            layerType : null,
-            geojson: true
-        };
+            // try JSON
+            var json = JSON.parse( this.data );
 
-        // sniff the feature.geometry type and coerce to L.Draw types
-        var geom_type = lyr.feature.geometry.type;
+            // try GeoJSON
+            var parsed_data = new L.geoJson( json )
 
-        if ( geom_type === "Point" || 
-                geom_type === "MultiPoint" ){
+            // check for multipart, unsupported for now
+            parsed_data.getLayers().forEach( function( lyr, indx ){
 
-            event_obj.layerType = "marker";
+                if( /multi/i.test( lyr.feature.geometry.type ) ) {
+                    throw new Error( "Multipart GeoJson is not supported yet" );
+                }
 
+            });
+
+            parse_type = "geojson";
+
+        } catch(err) {
+
+            try {
+
+                // if multipart error message, pass it on
+                if ( /multipart/i.test( err.message ) ){
+                    throw new Error( err );
+                }
+
+                // try WKT 
+                if( this.data !== "" ){
+                    var parsed_data = new Wkt.Wkt( this.data );
+                } 
+                else {
+                    throw new Error( "empty -- nothing to parse" );
+                }
+
+                // check for multipart, unsupported for now
+                if ( /multi/i.test( parsed_data.type ) ){
+                    throw new Error( "Multipart WKT is not supported yet" );
+                }
+
+                parse_type = "wkt";
+
+            } catch(err) {
+
+                alert( "Your paste is not parsable as GeoJSON or WKT:\n" + "< " +err.message+ " >" );
+                fail = true;
+
+            }
         }
-        else if ( geom_type === "LineString" || 
-                    geom_type === "MultiLineString" ){
 
-            event_obj.layerType = "polyline";
+        // delegate to format handler
+        if ( !fail ){
 
-        }
-        else if ( geom_type === "Polygon" ||
-                    geom_type === "MultiPolygon" ){
+            this._formatHandler[ parse_type ].call(  this, parsed_data );
 
-            event_obj.layerType = "polygon";
+        } 
+        
+        return ( fail ? false : true );
+    };
 
-        }
 
-        // call L.Draw.Feature.prototype._fireCreatedEvent
-        map.fire( 'draw:created', event_obj );
+    /*
+    **  an object with functions as property names
+    **  if we need to add more formats
+    **  we can do so here as a property name
+    **  to enforce reusability
+    */
+    FormatSniffer.prototype._formatHandler = {
 
-    });
 
-    return true;
+            // coerce event objects to work with L.Draw types
+            coerce : function ( lyr, type_obj ) {
+
+                    var event_obj = {
+                        layer : lyr,
+                        layerType : null,
+                    } 
+
+                    // coerce to L.Draw types
+                    if ( /point/i.test( type_obj ) ){
+                        event_obj.layerType = "marker";
+                    }
+                    else if( /linestring/i.test( type_obj ) ){
+                        event_obj.layerType = "polyline";
+                    }
+                    else if ( /polygon/i.test( type_obj ) ){
+                        event_obj.layerType = "polygon";
+                    }
     
-}
+                    return event_obj;
+
+            } ,
+
+            wkt : function( data ) {
+
+                    var lyr = data.construct[data.type].call( data );
+                    var evt = this._formatHandler.coerce( lyr, data.type );
+
+                    // call L.Draw.Feature.prototype._fireCreatedEvent
+                    map.fire( 'draw:created', evt );
+
+            } ,
+
+            geojson : function( geojson_layer ) {
+
+                    /* 
+                    **  add it as L.FeatureGroup layer 
+                    **  to work with L.Draw
+                    **  edit and delete options
+                    **  by faking event information
+                    **  and triggering draw:created
+                    */
+                    var all_layers = geojson_layer.getLayers();
+                    for( var indx = 0; indx < all_layers.length; indx++ ) { 
+                        var lyr = all_layers[indx];
+
+                        var geom_type = lyr.feature.geometry.type;
+                        var evt = this._formatHandler.coerce( lyr, geom_type );
+
+                        // call L.Draw.Feature.prototype._fireCreatedEvent
+                        map.fire( 'draw:created', evt );
+
+                    }
+            } 
+
+    };
+
+    return FormatSniffer; // return class def
+
+})(); // end FormatSniffer
 
 
 function formatBounds(bounds, proj, tool) {
@@ -542,7 +545,7 @@ $(function() {
     });
 
     $('button#add').on( 'click', function(evt){
-        var is_valid = typeSniffDelegator();
+        var is_valid = formatSniffer( { data :  $('.ocontainer textarea').val() } );
         if (is_valid) {
             lightBox.endLightBox();
             map.fitBounds(bounds.getBounds());
