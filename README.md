@@ -1,4 +1,4 @@
-bboxfinder.com
-==============
+bboxfinder.osgeohacks.com
+============================
 
-Helper page for finding bbox values from a map to help with interaction with tools like gdal, leaflet, openlayers, etc.
+The highjacked and very CSS3-stylized version of bboxfinder.com. Did i mention the word "better" also?
