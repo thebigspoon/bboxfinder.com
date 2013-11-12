@@ -601,7 +601,7 @@ $(function() {
             map.fitBounds(bounds.getBounds());
         }
     });
-    $('button#clear').on( 'click', function(evt){
+    $('button#cancel').on( 'click', function(evt){
         lightBox.endLightBox();
     });
 
