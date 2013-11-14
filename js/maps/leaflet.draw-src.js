@@ -1955,7 +1955,7 @@ L.Toolbar = L.Class.extend({
 			.on(link, 'click', L.DomEvent.stopPropagation)
 			.on(link, 'mousedown', L.DomEvent.stopPropagation)
 			.on(link, 'dblclick', L.DomEvent.stopPropagation)
-			.on(link, 'click', L.DomEvent.preventDefault)
+		    .on(link, 'click', L.DomEvent.preventDefault)
 			.on(link, 'click', options.callback, options.context);
 
 		return link;

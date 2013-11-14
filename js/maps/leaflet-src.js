@@ -1966,6 +1966,11 @@ L.Map = L.Class.extend({
 	},
 
 	mouseEventToContainerPoint: function (e) { // (MouseEvent)
+        if( e.type === 'mousedown' || e.type === 'click' ) {
+            console.log( "[ BOOM ]: ", e, this._container );
+		    var x = L.DomEvent.getMousePosition(e, this._container);
+            console.log( "[ MPOS ]: ", x );
+        }
 		return L.DomEvent.getMousePosition(e, this._container);
 	},
 
@@ -2196,6 +2201,10 @@ L.Map = L.Class.extend({
 		    layerPoint = this.containerPointToLayerPoint(containerPoint),
 		    latlng = this.layerPointToLatLng(layerPoint);
 
+        if( type === 'mousedown' || type === 'click' ) {
+        console.log( "[ TYPE ]: ",type );
+        console.log( "[ OBJECT ]: ", { latlng: latlng, layerPoint: layerPoint, containerPoint: containerPoint, originalEvent: e } );
+        }
 		this.fire(type, {
 			latlng: latlng,
 			layerPoint: layerPoint,

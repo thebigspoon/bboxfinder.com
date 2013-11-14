@@ -57,9 +57,7 @@
 	};
 
 	TestRunner.prototype.tear_down = function() {
-		if( this._draw_delete_handler ){
-			this._draw_delete_handler.off('draw:deleted');
-		}
+        // stub like a bass
 	};
 
 	TestRunner.prototype.run_this_mother = function( json_data ) {
@@ -79,7 +77,7 @@
 
 			this.test_parsing( data, json_data );
 			this.test_add2map( json_data );
-			//this.test_deletable( json_data );
+			this.test_deletable( json_data );
 
 			this.tear_down();
 		}
@@ -112,7 +110,7 @@
 
 		// loop through this toolbars featureGroup, delete layers
 		if ( !toolbar._activeMode ) {
-			toolbar._modes['remove'].handler.fire( 'enabled', { 'handler' : 'remove' } ); // enable deletable
+			toolbar._modes['remove'].button.click(); // enable deletable
 		}
 		for( var indx in toolbar.options['featureGroup']._layers ) {
 			try {
@@ -123,12 +121,8 @@
 				console.error( "[ DELETE TEST FAIL ]: ", err.message, identifier );
 			}
 		}
-		// disable deletable
-		/*
-		setTimeout( function(){
-			toolbar._modes['remove'].handler.fire( 'disabled', { 'handler' : 'remove' } ); 
-		}, 2000 );
-		*/
+        // WTF?
+		$('a[title="Save changes."]')[0].click();  // disable deletable
 
 	};
 
