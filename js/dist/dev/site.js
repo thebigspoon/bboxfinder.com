@@ -933,9 +933,7 @@ var Bbox = require("../bbox");
 	};
 
 	TestRunner.prototype.tear_down = function() {
-		if( this._draw_delete_handler ){
-			this._draw_delete_handler.off('draw:deleted');
-		}
+        // stub like a bass
 	};
 
 	TestRunner.prototype.run_this_mother = function( json_data ) {
@@ -986,22 +984,21 @@ var Bbox = require("../bbox");
 			}
 		});
 
-
-        // loop through this toolbars featureGroup, delete layers
-        if ( !toolbar._activeMode ) {
-            toolbar._modes['remove'].button.click(); // enable deletable
-        }
-        for( var indx in toolbar.options['featureGroup']._layers ) {
-            try {
-                var lyr = toolbar.options['featureGroup']._layers[indx];
-                lyr.fire( 'click' ); // triggers delete
-            }
-            catch ( err ){
-                console.error( "[ DELETE TEST FAIL ]: ", err.message, identifier );
-            }
-        }
+		// loop through this toolbars featureGroup, delete layers
+		if ( !toolbar._activeMode ) {
+			toolbar._modes['remove'].button.click(); // enable deletable
+		}
+		for( var indx in toolbar.options['featureGroup']._layers ) {
+			try {
+				var lyr = toolbar.options['featureGroup']._layers[indx];
+				lyr.fire( 'click' ); // triggers delete
+			}
+			catch ( err ){
+				console.error( "[ DELETE TEST FAIL ]: ", err.message, identifier );
+			}
+		}
         // WTF?
-        $('a[title="Save changes."]')[0].click();  // disable deletable
+		$('a[title="Save changes."]')[0].click();  // disable deletable
 
 	};
 
@@ -1295,11 +1292,7 @@ Wkt.Wkt.prototype.toObject = function (config) {
  * Absorbs the geometry of another Wkt.Wkt instance, merging it with its own,
  * creating a collection (MULTI-geometry) based on their types, which must agree.
  * For example, creates a MULTIPOLYGON from a POLYGON type merged with another
-<<<<<<< HEAD
- * POLYGON type.
-=======
  * POLYGON type, or adds a POLYGON instance to a MULTIPOLYGON instance.
->>>>>>> dev
  * @memberof Wkt.Wkt
  * @method
  */
@@ -14615,11 +14608,7 @@ module.exports={
   "readme": "# mapbox.js\n\n[![Build Status](https://travis-ci.org/mapbox/mapbox.js.png?branch=v1)](https://travis-ci.org/mapbox/mapbox.js)\n\nThis is the MapBox Javascript API, version 1.x. It's built as a [Leaflet](http://leafletjs.com/)\nplugin. You can [read about its launch](http://mapbox.com/blog/mapbox-js-with-leaflet/).\n\n## [API](http://mapbox.com/mapbox.js/api/)\n\nManaged as Markdown in `API.md`, following the standards in `DOCUMENTING.md`\n\n## [Examples](http://mapbox.com/mapbox.js/example/v1.0.0/)\n\n## Usage with Browserify\n\nInstall the mapbox.js module and add it to `dependencies` in package.json:\n\n```sh\nnpm install mapbox.js --save\n```\n\nRequire mapbox in your script:\n\n```js\n// main.js\n\nrequire('mapbox.js'); // <-- auto-attaches to window.L\n```\n\nBrowserify it:\n\n```sh\nbrowserify main.js -o bundle.js\n```\n\n## Building\n\nRequires [node.js](http://nodejs.org/) installed on your system.\n\n``` sh\ngit clone https://github.com/mapbox/mapbox.js.git\ncd mapbox.js\nnpm install\nmake\n```\n\nThis project uses [browserify](https://github.com/substack/node-browserify) to combine\ndependencies and installs a local copy when you run `npm install`.\n`make` will build the project in `dist/`.\n\n### Tests\n\nTest with [phantomjs](http://phantomjs.org/):\n\n``` sh\nnpm test\n```\n\nTo test in a browser, run a [local development server](https://gist.github.com/tmcw/4989751)\nand go to `/test`.\n\n### Version v0.x.x\n\n[Version v0.x.x can be accessed in the old master branch.](https://github.com/mapbox/mapbox.js/tree/master).\n\n### Editing Icons\n\nRequirements:\n\n    inkscape\n    pngquant\n    convert (part of imagemagick)\n\n1. Make edits to `theme/images/icons.svg`.\n2. Run `./theme/images/render.sh` to update sprites from your edits.\n3. Add a CSS reference with the appropriate pixel coordinate if adding a new icon.\n",
   "readmeFilename": "README.md",
   "_id": "mapbox.js@1.4.2",
-  "dist": {
-    "shasum": "c459192c452b12dd01e96ea5f640c88411ae8a42"
-  },
-  "_from": "mapbox.js@1.4.2",
-  "_resolved": "https://registry.npmjs.org/mapbox.js/-/mapbox.js-1.4.2.tgz"
+  "_from": "mapbox.js@1.4.2"
 }
 
 },{}],19:[function(require,module,exports){
